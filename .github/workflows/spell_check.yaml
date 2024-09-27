@@ -3,6 +3,7 @@ name: Spell Check PR
 on:
   pull_request:
     types: [opened, edited, synchronize]
+  workflow_dispatch:
 
 env:
   PYTHON_VERSION: 3.11
@@ -31,9 +32,10 @@ jobs:
 
           # Escape special characters in PR_CONTENT to ensure it's valid JSON and encoded in UTF-8
           ESCAPED_PR_CONTENT=$(echo "$PR_CONTENT" | python -c 'import json,sys; print(json.dumps(sys.stdin.read()).encode("utf-8"))')
-
+          echo "Escaped PR content: $ESCAPED_PR_CONTENT"
           # Ensure valid UTF-8 encoding in the payload
           VALIDATED_PAYLOAD=$(echo "$ESCAPED_PR_CONTENT" | python -c 'import sys; print(sys.stdin.read().encode("utf-8"))')
+          echo "Validated payload: $VALIDATED_PAYLOAD"
 
       - name: Call Lambda for spell-checking PR content
         run: |
