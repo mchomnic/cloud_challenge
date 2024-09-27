@@ -1,3 +1,7 @@
+provider "aws" {
+  region = var.aws_region
+}
+
 variable "aws_region" {
   description = "AWS region based on environment"
   type        = string
@@ -8,6 +12,8 @@ variable "environment" {
   type        = string
 }
 
-provider "aws" {
-  region = var.aws_region
+variable "spell_checker_lambda" {
+  description = "Spell Checker Lambda function name"
+  type        = string
+  default     = "spellcheck-lambda"
 }
