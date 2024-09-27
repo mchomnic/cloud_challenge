@@ -1,19 +1,23 @@
-from spellchecker import SpellChecker
+""" Spell Checker Lambda Function """
+
 import json
 import re
 
-text = "Ths is an exmple of speling error."
+from spellchecker import SpellChecker
+
+""" Lambda handler function """
+
 
 def handler(event, context):
     spell = SpellChecker()
 
     # Print the event to the CloudWatch Logs
-    print(f'Event: {event}')
+    print(f"Event: {event}")
 
     # Get the content to spell check from the input (event)
-    content = event.get('content', '')
+    content = event.get("content", "")
 
-    cleaned_text = re.sub(r'[^a-zA-Z\s]', '', content)
+    cleaned_text = re.sub(r"[^a-zA-Z\s]", "", content)
 
     # Tokenize content into words
     words = cleaned_text.split()
@@ -23,16 +27,13 @@ def handler(event, context):
 
     if misspelled_words:
         return {
-            'statusCode': 400,
-            'body': json.dumps({
-                'errors': list(misspelled_words),
-                'message': 'Spelling errors found.'
-            })
+            "statusCode": 400,
+            "body": json.dumps(
+                {"errors": list(misspelled_words), "message": "Spelling errors found."}
+            ),
         }
 
     return {
-        'statusCode': 200,
-        'body': json.dumps({
-            'message': 'No spelling errors found.'
-        })
+        "statusCode": 200,
+        "body": json.dumps({"message": "No spelling errors found."}),
     }
