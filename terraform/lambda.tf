@@ -15,7 +15,7 @@ resource "aws_iam_role" "lambda_exec_role" {
 }
 
 resource "aws_lambda_function" "spellcheck_lambda" {
-  function_name = "${var.environment}spellcheck-lambda"
+  function_name = var.spell_checker_lambda
   package_type  = "Image"
   image_uri     = "${aws_ecr_repository.spellcheck.repository_url}:latest"
 #   image_uri     = "<aws_account_id>.dkr.ecr.<region>.amazonaws.com/spellcheck-lambda:latest"

@@ -18,9 +18,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ var.aws_region }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
 
       - name: Extract PR content and commit messages
         run: |
@@ -31,7 +31,7 @@ jobs:
 
       - name: Call Lambda for spell checking PR content
         run: |
-          LAMBDA_NAME="devspellcheck-lambda"
+          LAMBDA_NAME="spellcheck-lambda"
           aws lambda invoke \
             --function-name $LAMBDA_NAME \
             --payload "{\"text\": \"$PR_CONTENT\"}" \
@@ -45,5 +45,3 @@ jobs:
             --payload "{\"text\": \"$COMMIT_MESSAGES\"}" \
             commit_output.json
           cat commit_output.json
-
-# "${var.environment}spellcheck-lambda"
