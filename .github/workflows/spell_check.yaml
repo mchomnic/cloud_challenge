@@ -43,7 +43,8 @@ jobs:
           LAMBDA_NAME="spellcheck-lambda"
           aws lambda invoke \
             --function-name $LAMBDA_NAME \
-            --payload "{\"text\": \"$PR_CONTENT\"}" \
+            --cli-binary-format raw-in-base64-out \
+            --payload "{\"content\": \"$PR_CONTENT\"}" \
             pr_output.json
           cat pr_output.json
 
@@ -51,6 +52,7 @@ jobs:
         run: |
           aws lambda invoke \
             --function-name $LAMBDA_NAME \
-            --payload "{\"text\": \"$COMMIT_MESSAGES\"}" \
+            --cli-binary-format raw-in-base64-out \
+            --payload "{\"content\": \"$COMMIT_MESSAGES\"}" \
             commit_output.json
           cat commit_output.json
