@@ -3,12 +3,11 @@
 import json
 import re
 
-from spellchecker import SpellChecker
-
-""" Lambda handler function """
+from spellchecker import SpellChecker  # [import-error]
 
 
-def handler(event, context):
+def handler(event, context):  # pylint: disable=unused-argument
+    """Lambda handler function"""
     spell = SpellChecker()
 
     # Print the event to the CloudWatch Logs
