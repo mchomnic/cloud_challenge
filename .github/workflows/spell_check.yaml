@@ -29,7 +29,13 @@ jobs:
           echo "PR content: $PR_CONTENT"
           echo "Commit message: $COMMIT_MESSAGES"
 
-      - name: Call Lambda for spell checking PR content
+          # Escape special characters in PR_CONTENT to ensure it's valid JSON and encoded in UTF-8
+          ESCAPED_PR_CONTENT=$(echo "$PR_CONTENT" | python -c 'import json,sys; print(json.dumps(sys.stdin.read()).encode("utf-8"))')
+
+          # Ensure valid UTF-8 encoding in the payload
+          VALIDATED_PAYLOAD=$(echo "$ESCAPED_PR_CONTENT" | python -c 'import sys; print(sys.stdin.read().encode("utf-8"))')
+
+      - name: Call Lambda for spell-checking PR content
         run: |
           LAMBDA_NAME="spellcheck-lambda"
           aws lambda invoke \
@@ -38,7 +44,7 @@ jobs:
             pr_output.json
           cat pr_output.json
 
-      - name: Call Lambda for spell checking commit messages
+      - name: Call Lambda for spell-checking commit messages
         run: |
           aws lambda invoke \
             --function-name $LAMBDA_NAME \
