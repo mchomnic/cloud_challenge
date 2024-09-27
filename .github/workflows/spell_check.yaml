@@ -1,8 +1,8 @@
 name: Spell Check PR
 
 on:
-  pull_request:
-    types: [opened, edited, synchronize]
+  # pull_request:
+  #   types: [opened, edited, synchronize]
   workflow_dispatch:
 
 env:
@@ -26,6 +26,7 @@ jobs:
       - name: Extract PR content and commit messages
         run: |
           PR_CONTENT=$(cat README.md)  # TODO
+          # COMMIT_MESSAGES=$(git log --format=%B -n 1)
           COMMIT_MESSAGES=$(git log --format=%B -n 1)
           echo "PR content: $PR_CONTENT"
           echo "Commit message: $COMMIT_MESSAGES"
