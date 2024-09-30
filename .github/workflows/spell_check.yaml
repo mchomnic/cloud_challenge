@@ -9,7 +9,7 @@ on:
       - '**/*.tf'
 
 jobs:
-  spell-check:
+  build:
     runs-on: ubuntu-latest
 
     steps:
