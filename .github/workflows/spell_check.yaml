@@ -2,9 +2,11 @@ name: Spell Check
 
 on:
   pull_request:
+    types: [opened, edited, synchronize]
     paths:
-      - '**/*.md'  # Specify the file types you want to check for spelling errors (Markdown files in this case)
-      - '**/*.txt'  # You can add more extensions like .txt, .py, etc.
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.tf'
 
 jobs:
   spell-check:
