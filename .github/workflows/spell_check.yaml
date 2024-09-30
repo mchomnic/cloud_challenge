@@ -3,11 +3,6 @@ name: Spell Check
 on:
   pull_request:
     types: [opened, edited, synchronize]
-    paths:
-      - '**/*.md'
-      - '**/*.txt'
-      - '**/*.tf'
-      - '**/*.yaml'
 
 jobs:
   build:
