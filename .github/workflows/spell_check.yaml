@@ -20,7 +20,8 @@ jobs:
           sudo apt-get install -y codespell
 
       - name: Get the head SHA from PR
-        run: echo "Head SHA: ${{ github.event.pull_request.head.sha }}"
+        run: |
+          echo "Head SHA: ${{ github.event.pull_request.head.sha }}"
 
       # Step 3: Run codespell on changed files
       - name: Check spelling in PR changes
