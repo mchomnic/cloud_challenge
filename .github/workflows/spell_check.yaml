@@ -19,15 +19,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y codespell
 
-      - name: Get the head SHA from PR
-        run: |
-          echo "Head SHA: ${{ github.event.pull_request.head.sha }}"
-
       # Step 3: Run codespell on changed files
       - name: Check spelling in PR changes
         run: |
           # List files changed in this PR
-          git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.sha }} > changed_files.txt
+          git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} > changed_files.txt
 
           # Check spelling errors in changed files
           cat changed_files.txt | xargs codespell --skip="*.json,*.min.js,*.png" --check-filenames --check-hidden -q 3
