@@ -1,56 +1,31 @@
-name: Spell Check PR
+name: Spell Check
 
 on:
-  # pull_request:
-  #   types: [opened, edited, synchronize]
-  workflow_dispatch:
-
-env:
-  PYTHON_VERSION: 3.11
+  pull_request:
+    types: [opened, edited, synchronize]
 
 jobs:
-  spellcheck:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      # Step 1: Check out the repository
+      - name: Check out the repository
+        uses: actions/checkout@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
+          fetch-depth: 0  # Fetch full history of the PR branch
 
-      - name: Extract PR content and commit messages
+      # Step 2: Install codespell
+      - name: Install codespell
         run: |
-          PR_CONTENT=$(cat README.md)  # TODO
-          # COMMIT_MESSAGES=$(git log --format=%B -n 1)
-          COMMIT_MESSAGES=$(git log --format=%B -n 1)
-          echo "PR content: $PR_CONTENT"
-          echo "Commit message: $COMMIT_MESSAGES"
+          sudo apt-get update
+          sudo apt-get install -y codespell
 
-          # Escape special characters in PR_CONTENT to ensure it's valid JSON and encoded in UTF-8
-          ESCAPED_PR_CONTENT=$(echo "$PR_CONTENT" | python -c 'import json,sys; print(json.dumps(sys.stdin.read()).encode("utf-8"))')
-          echo "Escaped PR content: $ESCAPED_PR_CONTENT"
-          # Ensure valid UTF-8 encoding in the payload
-          VALIDATED_PAYLOAD=$(echo "$ESCAPED_PR_CONTENT" | python -c 'import sys; print(sys.stdin.read().encode("utf-8"))')
-          echo "Validated payload: $VALIDATED_PAYLOAD"
-
-      - name: Call Lambda for spell-checking PR content
+      # Step 3: Run codespell on changed files
+      - name: Check spelling in PR changes
         run: |
-          LAMBDA_NAME="spellcheck-lambda"
-          aws lambda invoke \
-            --function-name $LAMBDA_NAME \
-            --payload "{\"text\": \"$PR_CONTENT\"}" \
-            pr_output.json
-          cat pr_output.json
+          # List files changed in this PR
+          git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} > changed_files.txt
 
-      - name: Call Lambda for spell-checking commit messages
-        run: |
-          aws lambda invoke \
-            --function-name $LAMBDA_NAME \
-            --payload "{\"text\": \"$COMMIT_MESSAGES\"}" \
-            commit_output.json
-          cat commit_output.json
+          # Check spelling errors in changed files
+          cat changed_files.txt | xargs codespell --skip="*.json,*.min.js,*.png" --check-filenames --check-hidden -q 3
