@@ -12,6 +12,8 @@ jobs:
       # Step 1: Check out the repository
       - name: Check out the repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history of the PR branch
 
       # Step 2: Install codespell
       - name: Install codespell
