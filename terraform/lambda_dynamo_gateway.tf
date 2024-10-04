@@ -78,7 +78,7 @@ resource "aws_apigatewayv2_api" "lambda_api" {
 
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.lambda_api.id
-  name        = "default"
+  name        = "$default"
   auto_deploy = true
 }
 
@@ -90,9 +90,14 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
 
 resource "aws_apigatewayv2_route" "lambda_route" {
   api_id    = aws_apigatewayv2_api.lambda_api.id
-  route_key = "GET /increment"
-
+  route_key = "GET /visitor-count"
   target = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+}
+
+resource "aws_apigatewayv2_route" "options_route" {
+  api_id    = aws_apigatewayv2_api.lambda_api.id
+  route_key = "OPTIONS /visitor-count"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
 }
 
 resource "aws_lambda_permission" "allow_apigw_lambda" {
