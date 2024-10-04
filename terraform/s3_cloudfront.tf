@@ -9,13 +9,34 @@ resource "null_resource" "clone_and_upload_website" {
       git clone https://github.com/designmodo/html-website-templates.git /tmp/website
       cp -r /tmp/website/'One Page Portfolio Website Template' /tmp/website/one_page
 
+      # Modify the index.html file to include the visitor counter with API Gateway URL
+      sed -i '/<body class="slides chain simplifiedMobile animated">/a \
+      <div id="visitorCount">Loading...</div>\
+      <script>\
+        async function getVisitorCount() {\
+          try {\
+            const apiUrl = "${aws_apigatewayv2_api.lambda_api.api_endpoint}/visitor-count";\
+            const response = await fetch(apiUrl);\
+            if (!response.ok) {\
+              throw new Error("Network response was not ok");\
+            }\
+            const data = await response.json();\
+            document.getElementById("visitorCount").textContent = `Visitors: $${data.visitor_count}`;\
+          } catch (error) {\
+            console.error("Error fetching visitor count:", error);\
+            document.getElementById("visitorCount").textContent = "Failed to load visitor count.";\
+          }\
+        }\
+        window.onload = getVisitorCount;\
+      </script>' /tmp/website/one_page/index.html
+
       # Copy the HTML website template files to the S3 bucket
       aws s3 sync /tmp/website/one_page s3://${aws_s3_bucket.s3_bucket.bucket}
     EOT
   }
 
   # Ensure the bucket is created before uploading
-  depends_on = [aws_s3_bucket.s3_bucket]
+  depends_on = [aws_s3_bucket.s3_bucket, aws_apigatewayv2_api.lambda_api]
 }
 
 output "s3_website_url" {
@@ -26,7 +47,7 @@ output "s3_website_url" {
 # CloudFront distribution for the S3 website
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
-    domain_name = "${aws_s3_bucket.s3_bucket.bucket}.s3.amazonaws.com"
+    domain_name = aws_s3_bucket.s3_bucket.bucket_regional_domain_name
     origin_id   = "S3-${aws_s3_bucket.s3_bucket.bucket}"
 
     s3_origin_config {
@@ -87,7 +108,7 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
       {
         Effect = "Allow",
         Principal = {
-          AWS = "${aws_cloudfront_origin_access_identity.origin_identity.iam_arn}"
+          AWS = aws_cloudfront_origin_access_identity.origin_identity.iam_arn
         }
         Action = "s3:GetObject"
         Resource = "${aws_s3_bucket.s3_bucket.arn}/*"
