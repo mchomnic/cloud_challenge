@@ -1,0 +1,6 @@
+lambda_package.zip
+.terraform*
+terraform.tfstate
+terraform.tfstate.backup
+Pipfile
+Pipfile.lock
