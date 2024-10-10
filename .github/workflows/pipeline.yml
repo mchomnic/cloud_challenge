@@ -1,13 +1,45 @@
-name: Spell Check
+name: Pylint
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types: [opened, edited, synchronize]
+    branches:
+      - main
+    paths:
+      - '**.py'
+      - terraform/**
 
 jobs:
-  build:
+  lint:
+    name: Pylint
     runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository
+      - uses: actions/checkout@v4
 
+      # Step 2: Set up Python 3.12
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.12
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      #Step 4: Run pylint on changed files
+      - name: Analysing the code with pylint
+        run: |
+          pylint $(git ls-files '*.py')
+
+  spell:
+    name: Spell Check
+    runs-on: ubuntu-latest
     steps:
       # Step 1: Check out the repository
       - name: Check out the repository
