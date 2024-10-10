@@ -61,3 +61,37 @@ jobs:
 
           # Check spelling errors in changed files
           cat changed_files.txt | xargs codespell --skip="*.json,*.min.js,*.png" --check-filenames --check-hidden -q 3
+
+  terraform:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the repository
+      - name: Check out the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history of the PR branch
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.2  # Specify the desired Terraform version
+
+    - name: AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Format Check
+      run: terraform fmt -check
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Plan
+      run: terraform plan -out=plan.out
