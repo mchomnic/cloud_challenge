@@ -82,7 +82,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   # Price class for global distribution (reduce the cost by limiting distribution areas)
   price_class = "PriceClass_100" # Limits distribution to North America and Europe
 
-
   restrictions {
     geo_restriction {
       restriction_type = "none"
