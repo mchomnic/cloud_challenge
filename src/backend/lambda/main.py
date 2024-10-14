@@ -12,6 +12,8 @@ from botocore.exceptions import ClientError
 # Initialize the DynamoDB client
 dynamodb = boto3.resource('dynamodb')
 
+
+
 # DynamoDB table name
 TABLE_NAME = os.getenv("TABLE_NAME")
 
