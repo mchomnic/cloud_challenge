@@ -6,6 +6,7 @@ on:
 
 jobs:
   lint:
+    name: Pylint
     runs-on: ubuntu-latest
 
     steps:
@@ -30,6 +31,7 @@ jobs:
           pylint $(git ls-files '*.py')
 
   spell:
+    name: Spell Check
     runs-on: ubuntu-latest
 
     steps:
@@ -49,7 +51,7 @@ jobs:
       - name: Check spelling in PR changes
         run: |
           # List files changed in this PR
-          git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} > changed_files.txt
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt
 
           # Check spelling errors in changed files
           cat changed_files.txt | xargs codespell --skip="*.json,*.min.js,*.png" --check-filenames --check-hidden -q 3
@@ -77,12 +79,16 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+        working-directory: ./terraform
 
       - name: Terraform Format Check
         run: terraform fmt -check
+        working-directory: ./terraform
 
       - name: Terraform Validate
         run: terraform validate
+        working-directory: ./terraform
 
       - name: Terraform Plan
         run: terraform plan -out=plan.out
+        working-directory: ./terraform
