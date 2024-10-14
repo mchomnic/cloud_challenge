@@ -1,0 +1,88 @@
+name: Github Actions CI
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - uses: actions/checkout@v4
+
+      # Step 2: Set up Python 3.12
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.12
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      #Step 4: Run pylint on changed files
+      - name: Analysing the code with pylint
+        run: |
+          pylint $(git ls-files '*.py')
+
+  spell:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Check out the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history of the PR branch
+
+      # Step 2: Install codespell
+      - name: Install codespell
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y codespell
+
+      # Step 3: Run codespell on changed files
+      - name: Check spelling in PR changes
+        run: |
+          # List files changed in this PR
+          git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} > changed_files.txt
+
+          # Check spelling errors in changed files
+          cat changed_files.txt | xargs codespell --skip="*.json,*.min.js,*.png" --check-filenames --check-hidden -q 3
+
+  terraform:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch full history of the PR branch
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.2
+
+      - name: AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=plan.out
