@@ -90,5 +90,5 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform Plan
-        run: terraform plan -out=plan.out
+        run: terraform plan -var-file=dev.tfvars -out=plan.out
         working-directory: ./terraform
