@@ -52,7 +52,7 @@ resource "aws_iam_role_policy_attachment" "lambda_dynamodb_policy_attachment" {
 # Archive file into lambda package
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/src/lambda/"
+  source_dir  = "${path.module}/../src/backend/lambda/"
   output_path = "${path.module}/lambda_package.zip"
 }
 
@@ -91,7 +91,7 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
 resource "aws_apigatewayv2_route" "lambda_route" {
   api_id    = aws_apigatewayv2_api.lambda_api.id
   route_key = "GET /visitor-count"
-  target = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
 }
 
 resource "aws_apigatewayv2_route" "options_route" {
