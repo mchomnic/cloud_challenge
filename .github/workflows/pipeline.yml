@@ -1,21 +1,14 @@
-name: Pylint
+name: Github Actions CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     types: [opened, edited, synchronize]
-    branches:
-      - main
-    paths:
-      - '**.py'
-      - terraform/**
 
 jobs:
   lint:
     name: Pylint
     runs-on: ubuntu-latest
+
     steps:
       # Step 1: Check out the repository
       - uses: actions/checkout@v4
@@ -40,6 +33,7 @@ jobs:
   spell:
     name: Spell Check
     runs-on: ubuntu-latest
+
     steps:
       # Step 1: Check out the repository
       - name: Check out the repository
@@ -57,7 +51,7 @@ jobs:
       - name: Check spelling in PR changes
         run: |
           # List files changed in this PR
-          git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} > changed_files.txt
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changed_files.txt
 
           # Check spelling errors in changed files
           cat changed_files.txt | xargs codespell --skip="*.json,*.min.js,*.png" --check-filenames --check-hidden -q 3
