@@ -40,8 +40,8 @@ resource "null_resource" "clone_and_upload_website" {
 }
 
 output "s3_website_url" {
-    value = "${aws_s3_bucket.s3_bucket.bucket}"
-    description = "The website URL in S3"
+  value       = aws_s3_bucket.s3_bucket.bucket
+  description = "The website URL in S3"
 }
 
 # CloudFront distribution for the S3 website
@@ -110,7 +110,7 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
         Principal = {
           AWS = aws_cloudfront_origin_access_identity.origin_identity.iam_arn
         }
-        Action = "s3:GetObject"
+        Action   = "s3:GetObject"
         Resource = "${aws_s3_bucket.s3_bucket.arn}/*"
       }
     ]
@@ -118,6 +118,6 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
 }
 
 output "cloudfront_url" {
-  value = aws_cloudfront_distribution.s3_distribution.domain_name
+  value       = aws_cloudfront_distribution.s3_distribution.domain_name
   description = "The CloudFront distribution URL"
 }
