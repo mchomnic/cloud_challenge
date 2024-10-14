@@ -41,5 +41,11 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform Plan
-        run: terraform plan -var-file=dev.tfvars -out=plan.out
+        run: terraform plan -var-file=dev.tfvars -out=plan.tfplan
+        working-directory: ./terraform
+
+      # I supposed to use plan.tfplan stage file, but not in this project
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -var-file=dev.tfvars -auto-approve plan.tfplan
         working-directory: ./terraform
